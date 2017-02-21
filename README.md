@@ -3,6 +3,16 @@ Yii2 学习目录概述
 
 1、Advanced 模板的安装
 -------------------
+**Composer安装**
+
+_Windows 下，先更新，执行: `composer self-update`_
+
+_下载项目文件，执行: `composer create_project --prefer-dist yiisoft/yii2-app-advanced yii04`_
+
+_初始化：`php init`_
+
+_数据库迁移：`php yii migrate`，这样就自动生成了一张 user 表_
+
 2、DetailView 组件的应用
 -------------------
 3、dropDownList 下拉菜单及数组助手类的应用
