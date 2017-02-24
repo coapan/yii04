@@ -1,0 +1,30 @@
+这个博客系统里标签表的设计思路是：
+    integer $id
+    string $name
+    integer $frequency
+
+    public static function updateFrequency($oldTags, $newTags)
+
+
+我们想要达到的效果是：
+    新增标签的时候，如果同名，则+1，否则添加一条记录；
+    修改标签的时候，删除的标签数据库相应删除，增加的标签数据库相应增加；
+    删除标签的时候，如果有多条这样的标签，则-1，否则删除这条记录。
+
+
+具体思路：
+    1、把字符串转换为数组
+        $oldTagsArray = ['yii1','yii2','phpzhi'];
+        $newTagsArray = ['yii1','yii2','yii3','yii4'];
+
+    2、调用array_diff()求差集数组，得到需要增加和需要删除的标签
+        $toBeAdded = array_diff($newTagsArray, $oldTagsArray);
+        //如上差集就是：['yii3','yii4']
+        $toBeDelete = array_diff($oldTagsArray,$newTagsArray);
+        //如此就必须删除：['phpzhi']
+
+    3、数据库中增加或删除需要处理的标签
+        self:addTags($toBeAdded);
+        //如果标签存在，frequency+1，不存在则加一条新的记录
+        self:removeTags($toBeDeleted);
+        //frequency-1，如果减了后数量为0，则删除这条记录
