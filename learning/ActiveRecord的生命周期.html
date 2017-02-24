@@ -3,9 +3,14 @@ ActiveRecord 的生命周期：
 方法、生命周期、事件
 
 new();
+    1、constructor
+    2、init()            =>  EVENT_INIT
 
 
 find();
+    1、constructor
+    2、init()            =>  EVENT_INIT
+    3、afterFind()       =>  EVENT_AFTER_FIND
 
 
 save();
@@ -32,6 +37,10 @@ save();
     6、afterSave()       =>  EVENT_AFTER_INSERT or EVENT_AFTER_UPDATE
 
 delete();
+    1、beforeDelete()    =>  EVENT_BEFORE_DELETE
+    2、执行数据删除
+    3、afterDelete       =>  EVENT_AFTER_DELETE
 
 
 refresh();
+    1、afterRefresh()    =>  EVENT_AFTER_REFRESH
