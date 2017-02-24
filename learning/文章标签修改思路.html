@@ -28,3 +28,15 @@
         //如果标签存在，frequency+1，不存在则加一条新的记录
         self:removeTags($toBeDeleted);
         //frequency-1，如果减了后数量为0，则删除这条记录
+
+
+那么何时去调用这些方法呢？
+    1、新增文章的时候
+        afterSave()     =>  Tag::updateFrequency('', $this->tags);
+
+    2、删除文章的时候
+        afterDelete()   =>  Tag::updateFrequency($this->tags,'');
+
+    3、修改文章的时候
+        afterFine()     =>  $this->_oldTags = $this->tags;
+        afterSave()     =>  Tag::updateFrequency($this->_oldTags, $this->tags);
