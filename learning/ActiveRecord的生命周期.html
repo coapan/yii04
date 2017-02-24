@@ -1,0 +1,37 @@
+ActiveRecord 的生命周期：
+
+方法、生命周期、事件
+
+new();
+
+
+find();
+
+
+save();
+    1、beforeValidate()  =>  EVENT_BEFORE_VALIDATE
+    2、执行数据难，如通不过，第三步后面的步骤会被略过
+    3、afterValidate()   =>  EVENT_AFTER_VALIDATE
+    4、beforeSave()      =>  EVENT_BEFORE_INSERT or EVENT_BEFORE_UPDATE
+        //像什么创建时间，更新时间都是在第四个步骤写的。因为这部分是业务逻辑，我们不要把它放在控制器中来写：
+        public function beforeSave($insert)
+        {
+            if (parent::beforeSave($insert)) {
+                if ($insert) {
+                    $this->created_at = time();
+                    $this->updated_at = time();
+                } else {
+                    $this->updated_at = time();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+    5、执行数据的插入或修改
+    6、afterSave()       =>  EVENT_AFTER_INSERT or EVENT_AFTER_UPDATE
+
+delete();
+
+
+refresh();
