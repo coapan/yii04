@@ -1,0 +1,31 @@
+基于角色授权管理的数据库表要有四张表，这些表可以通过数据库迁移来完成：
+
+首页进入配置应用组件的文件中(common/config/main.php)，加入如下配置：
+    'authManager' => 'yii\rbac\DbManager'，
+否则会出现如下错误：
+    PHP yii\base\InvalidConfigException:  You should configure "authManager" component to use database before executing this migration.
+
+接下来进入项目所在的根目录，cd /var/www/html/yii04
+
+执行数据库迁移命令： ./yii migrate --migrationPath=@yii/rbac/migrations
+
+成功创建数据库的话，会有如下提示：
+    $ ./yii migrate --migrationPath=@yii/rbac/migrations
+    Yii Migration Tool (based on Yii v2.0.11.2)
+
+    Total 1 new migration to be applied:
+    m140506_102106_rbac_init
+
+    Apply the above migration? (yes|no) [no]:yes
+    *** applying m140506_102106_rbac_init
+    > create table {{%auth_rule}} ... done (time: 0.576s)
+    > create table {{%auth_item}} ... done (time: 0.597s)
+    > create index idx-auth_item-type on {{%auth_item}} (type) ... done (time: 0.579s)
+    > create table {{%auth_item_child}} ... done (time: 0.647s)
+    > create table {{%auth_assignment}} ... done (time: 0.693s)
+    *** applied m140506_102106_rbac_init (time: 3.538s)
+
+
+    1 migration was applied.
+
+    Migrated up successfully.
