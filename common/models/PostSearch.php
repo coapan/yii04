@@ -13,13 +13,22 @@ use common\models\Post;
 class PostSearch extends Post
 {
     /**
+     * 在原来的字段上再添加一个字段 author_name，使用 array_merge() 数组函数将它们合并起来
+     * @return array
+     */
+    public function attributes()
+    {
+        return array_merge(parent::attributes(), ['author_name']);
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
             [['id', 'status', 'created_at', 'updated_at', 'author_id'], 'integer'],
-            [['title', 'content', 'tags'], 'safe'],
+            [['title', 'content', 'tags', 'author_name'], 'safe'],
         ];
     }
 
@@ -45,8 +54,17 @@ class PostSearch extends Post
 
         // add conditions that should always apply here
 
+        /**
+         * 这里可以做为分布的条件
+         */
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC,
+                ],
+            ],
         ]);
 
         $this->load($params);
@@ -59,8 +77,8 @@ class PostSearch extends Post
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'status' => $this->status,
+            'post.id' => $this->id,
+            'post.status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'author_id' => $this->author_id,
@@ -69,6 +87,18 @@ class PostSearch extends Post
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'content', $this->content])
             ->andFilterWhere(['like', 'tags', $this->tags]);
+
+        /**
+         * 这是以innerJoinWith 方式进行关联查询
+         */
+        $query->join('INNER JOIN', 'Adminuser', 'post.author_id = Adminuser.id');
+        $query->andFilterWhere(['like', 'Adminuser.nickname', $this->author_name]);
+
+        $dataProvider->sort->attributes['author_name'] = [
+            'asc' => ['Adminuser.nickname' => SORT_ASC],
+            'desc' => ['Adminuser.nickname' => SORT_DESC],
+        ];
+
 
         return $dataProvider;
     }
