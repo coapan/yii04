@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 /* @var $model common\models\Post */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Posts', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '文章列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="post-view">
@@ -15,11 +15,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+        <?= Html::a('更新', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('删除', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => '你确定删除这篇文章吗?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -40,19 +40,21 @@ $this->params['breadcrumbs'][] = $this->title;
             //'created_at',
             [
                 'attribute'=>'created_at',
-                'value'=> date("Y-m-d H:i:s"),
+                'value'=> date("Y-m-d H:i:s", $model->created_at),
             ],
             //'updated_at',
             [
                 'attribute'=>'updated_at',
-                'value'=> date("Y-m-d H:i:s"),
+                'value'=> date("Y-m-d H:i:s", $model->updated_at),
             ],
-            //'author_id',
-            [
+            'author.nickname',
+            /*[
                 'attribute'=>'author_id',
                 'value'=> $model->author->nickname,
-            ],
+            ],*/
         ],
+        'template' => '<tr><th style="width: 120px;"> {label}</th><td>{value}</td></tr>',
+        'options' => ['class' => 'table table-striped table-bordered detail-view'],
     ]) ?>
 
 </div>
