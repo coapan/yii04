@@ -22,6 +22,7 @@ use Yii;
  */
 class Post extends \yii\db\ActiveRecord
 {
+    private $_oldTags;
     /**
      * @inheritdoc
      */
@@ -50,10 +51,10 @@ class Post extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'title' => '标题',
-            'content' => '内容',
-            'tags' => '标签',
+            'id' => '编号',
+            'title' => '文章标题',
+            'content' => '文章内容',
+            'tags' => '文章标签',
             'status' => '文章状态',
             'created_at' => '创建时间',
             'updated_at' => '修改时间',
@@ -83,5 +84,57 @@ class Post extends \yii\db\ActiveRecord
     public function getStatus0()
     {
         return $this->hasOne(Poststatus::className(), ['id' => 'status']);
+    }
+
+    /**
+     * 自动在数据库中添加 created_at 和 updated_at 这两个字段
+     *
+     * 当你通过 yii\db\ActiveRecord::save() 方法写入或更新数据时，我们将获得如下的生命周期：beforeSave(),afterSave(),
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($insert) {
+                $this->created_at = time();
+                $this->updated_at = time();
+            } else {
+                $this->updated_at = time();
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 当你通过 yii\db\ActiveRecord::find() 方法查询数据时，每个AR实例都会都将有 init()、afterFind() 两个生命周期
+     */
+    public function afterFind()
+    {
+        parent::afterFind();
+        $this->_oldTags = $this->tags;
+    }
+
+    /**
+     * 当表单数据保存到数据库之后（不管是更新文章不是创建新的文章），将会执行这个操作，即更新文章标签
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        Tag::updateFrequency($this->_oldTags, $this->tags);
+    }
+
+    /**
+     * 当调用 yii\db\ActiveRecord::delete() 删除数据时，将会获得如下的生命周期：afterDelete() 和 beforeDelete()
+     */
+    public function afterDelete()
+    {
+        parent::afterDelete();
+        Tag::updateFrequency($this->tags, '');
     }
 }
