@@ -66,3 +66,6 @@
 
 3、通过 authManager 提供的 API 创建一个控制台命令初始化授权数据
     在 console/controllers/ 下面创建一个控制器，里面写一个权限控制的代码，然后运行 ./yii rbac/init 来初始化这个控制器。
+
+4、最后执行权限的检查
+    yii\web\User::can()方法是一种快捷用法，用于对当前便当的用户进行权限检查。如果要能对任何用户进行权限检查，需要调用 yii\rbac\ManagerInterface::checkAccess() 方法来检查权限。
