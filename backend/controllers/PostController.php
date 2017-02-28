@@ -6,6 +6,7 @@ use Yii;
 use common\models\Post;
 use common\models\PostSearch;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -63,16 +64,13 @@ class PostController extends Controller
      */
     public function actionCreate()
     {
+        if (!Yii::$app->user->can('createPost')) {
+            throw new ForbiddenHttpException("对不起，你没有该操作的权限，请系统管理员取得权限！");
+        }
+
         $model = new Post();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->created_at = time();
-            $model->updated_at = time();
-            //$model->author_id = Yii::$app->user->id;
-            $model->save();
-            /*var_dump(Yii::$app->user->id);
-            exit;*/
-
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
