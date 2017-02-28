@@ -51,14 +51,14 @@ class Comment extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'content' => 'Content',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'user_id' => 'User ID',
-            'email' => 'Email',
-            'url' => 'Url',
-            'post_id' => 'Post ID',
+            'id' => '序号',
+            'content' => '内容',
+            'status' => '状态',
+            'created_at' => '创建时间',
+            'user_id' => '用户名',
+            'email' => '电子邮箱',
+            'url' => '访问地址',
+            'post_id' => '评论文章',
         ];
     }
 
@@ -84,5 +84,26 @@ class Comment extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return string 获取文章评论的长度
+     */
+    public function getBeginning()
+    {
+        $tmpStr = strip_tags($this->content);
+        $tmpLen = mb_strlen($tmpStr);
+
+        return mb_substr($tmpStr, 0, 10, "UTF-8") . (($tmpLen > 10) ? '...' : '');
+    }
+
+    /**
+     * 审核通过设置评论状态为1
+     * @return bool
+     */
+    public function approve()
+    {
+        $this->status = 1;
+        return ($this->save() ? true : false);
     }
 }
