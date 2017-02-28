@@ -1,3 +1,34 @@
+一、第一种方式
+    存取控制过滤器 ACF
+    1、是一种通过 yii\filters\AccessControl类来实现的简单授权方法，非常适用于仅需要简单的存取控制的应用。
+    2、在控制器中的behaviors()方法中设定存取的规则。当用户请求一个动作的时候，ACF会检查存取无则，判断该用户是否被允许执行所请求的动作。
+    3、两种角色：? => 未经认证访客用户   @ => 已认证用户
+    4、例子：
+        public function behaviors()
+        {
+            return [
+                'access'=>[
+                    'class'=>AccessControl::className(),
+                    'rules'=>[
+                        [
+                            'actions'=>['login','error'],
+                            'allow'=>true,
+                            'roles'=>['?'],
+                        ],
+                        [
+                            'actions'=>['logout','index'],
+                            'allow'=>true,
+                            'roles'=>['@'],
+                        ],
+                    ],
+                ],
+            ],
+        }
+
+
+
+二、基于角色的存取控制 RBAC：
+
 基于角色授权管理的数据库表要有四张表，这些表可以通过数据库迁移来完成：
 
 
