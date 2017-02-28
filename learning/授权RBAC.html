@@ -67,5 +67,82 @@
 3、通过 authManager 提供的 API 创建一个控制台命令初始化授权数据
     在 console/controllers/ 下面创建一个控制器，里面写一个权限控制的代码，然后运行 ./yii rbac/init 来初始化这个控制器。
 
+    控制器代码如下：
+        namespace console\controllers;
+        use Yii;
+        use yii\console\Controller;
+        class RbacController extends Controller
+        {
+            public function actionInit()
+            {
+                $auth = Yii::$app->authManager;
+
+                // 添加 "createPost" 权限
+                $createPost = $auth->createPermission('createPost');
+                $createPost->description = "添加文章";
+                $auth->add($createPost);
+
+                // 添加 "updatePost" 权限
+                $updatePost = $auth->createPermission('updatePost');
+                $updatePost->description = "更新文章";
+                $auth->add($updatePost);
+
+                // 添加 "deletePost" 权限
+                $deletePost = $auth->createPermission('deletePost');
+                $deletePost->description = "删除文章";
+                $auth->add($deletePost);
+
+                // 添加 "approveComment" 权限
+                $approveComment = $auth->createPermission('approvePost');
+                $approveComment->description = "审核评论";
+                $auth->add($approveComment);
+
+                // 添加 "postAdmin" 角色，并赋予 "updatePost, createPost, deletePost" 权限
+                $postAdmin = $auth->createRole('postAdmin');
+                $postAdmin->description = '文章管理员';
+                $auth->add($postAdmin);
+                $auth->addChild($postAdmin, $updatePost);
+                $auth->addChild($postAdmin, $createPost);
+                $auth->addChild($postAdmin, $deletePost);
+
+                // 添加 "postOperator" 角色，并赋予 "deletePost" 权限
+                $postOperator = $auth->createRole('postOperator');
+                $postOperator->description = '文章操作员';
+                $auth->add($postOperator);
+                $auth->addChild($postOperator, $deletePost);
+
+                // 添加 "commentAuditor" 角色并赋予 "approveComment" 权限
+                $commentAuditor = $auth->createRole('commentAuditor');
+                $commentAuditor->description = '评论审核员';
+                $auth->add($commentAuditor);
+                $auth->addChild($commentAuditor, $approveComment);
+
+                // 添加 'admin' 角色并赋予其他角色所拥有的权限
+                $admin = $auth->createRole('admin');
+                $admin->description = '系统管理员';
+                $auth->add($admin);
+                $auth->addChild($admin, $postAdmin);
+                $auth->addChild($admin, $commentAuditor);
+
+                // 最后，为用户分配角色。其中 1 和 2 是由 IdentityInterface::getId() 返回的ID，即user表的id，通常在你的 User 模型中实现这个函数
+                $auth->assign($admin, 1);
+                $auth->assign($postAdmin, 2);
+                $auth->assign($postOperator, 3);
+                $auth->assign($commentAuditor, 4);
+            }
+        }
+
 4、最后执行权限的检查
     yii\web\User::can()方法是一种快捷用法，用于对当前便当的用户进行权限检查。如果要能对任何用户进行权限检查，需要调用 yii\rbac\ManagerInterface::checkAccess() 方法来检查权限。
+
+    例如在 PostController 控制器中，如何进行单步验证呢？
+    public function actionCreate()
+    {
+        if (!Yii::$app->user->can('createPost') {
+            throw new ForbiddenHttpException('对不起，你没有该操作的权限');
+        }
+        ...
+        // 只有权限验证通过了，才能进行下一步的操作，否则会抛出这个异常
+    }
+
+    在实际开发中，我们应该用的是比较友好的权限设置界面，例如勾选复选框来进行设置，那么我们就应该新建一个视图来完成这个操作。
